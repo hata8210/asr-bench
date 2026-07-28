@@ -1,0 +1,14 @@
+# Sensitive information files
+*id.txt
+*log.txt
+
+# Tool-generated and hidden directories
+.*/
+.deepeval/
+
+# Common Python ignores (optional but recommended)
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env

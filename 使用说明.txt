@@ -1,0 +1,37 @@
+
+
+注意：
+本次的asr评估benchmark，评估使用了deepeval项目，需要提前安装
+
+
+第一步，识别测评集中音频的文字
+使用conda环境：conda activate interview
+输入测评集：data/评估-面试录音1.xlsx
+输出结果：data/评估-面试录音1_result.xlsx
+完整脚本：python scripts/eval_asr_detect.py --dataset data/评估-面试录音1.xlsx
+
+第二步，评估识别结果的准确率
+使用conda环境：conda activate aiops
+前提条件：运行目录中配置了.deepeval目录，目录中配置openai模型接口指向qwen模型而不是默认的gpt模型
+输入测评集：data/评估-面试录音1_result.xlsx
+其他输入参数：--filter USER，ground_truth中只筛选USER的对话
+输出结果：data/评估-面试录音1_result_eval.xlsx
+完整脚本：python scripts/eval_asr_accuracy.py --filter USER --dataset data/评估-面试录音1_result.xlsx
+
+
+
+
+
+已经支持的ASR模型：
+阿里云Fun-ASR-flash（非实时，支持预设多语言、角色分离）
+python scripts/asr_llm_funasr.py --wav_file data/面试录音1.wav
+阿里云Qwen-ASR（实时）
+python scripts/rtasr_llm_qwenasr.py --wav_file data/面试录音1.wav
+阿里云Fun-ASR（实时）
+python scripts/rtasr_llm_funasr.py --wav_file data/面试录音1.wav
+讯飞实时转文大模型（无声纹）
+python scripts/rtasr_llm_no_voiceprint.py --wav_file data/面试录音1.wav
+
+
+
+
