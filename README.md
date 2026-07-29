@@ -21,7 +21,7 @@
 | scripts/asr_llm_funasr.py | data/audio_01.wav | [00:00.500 --> 00:03.200] [Speaker 0] 你好，我来面试保安岗位。 | 2026-07-28 14:00:00 |
 
 #### 2. 最终评估报告 (`_eval.xlsx`)
-在识别结果的基础上，增加以下由 G-Eval 自动计算的评分列：
+该文件是 `_result.xlsx` 的增强版，**包含了原文件中的所有字段**（如 model, wav_file, content, eval_time），并在识别结果的基础上，增加以下由 G-Eval 自动计算的评分列：
 *   **ground_truth**: 标准参考文本（JSON 格式）。
 *   **content_accuracy**: 准确率得分 (0-1 之间)，反映识别文本与标准文本的语义一致性。
 *   **reason**: 模型给出评分的具体理由，用于分析识别错误的根因。
