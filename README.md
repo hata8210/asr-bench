@@ -4,6 +4,41 @@ This project aims to compare and evaluate various ASR (Automatic Speech Recognit
 
 [中文说明请参考 README_CN.md](./README_CN.md)
 
+---
+
+## Benchmark (Evaluation Logic)
+
+### Result File and Evaluation Report Structure
+This project generates a final evaluation report through two stages. The intermediate result file (`_result.xlsx`) generated during the recognition process and the final evaluation report (`_eval.xlsx`) have a hierarchical relationship in terms of structure:
+
+#### 1. Automated Recognition Results (`_result.xlsx`)
+Contains the raw information recognized by the ASR:
+*   **model**: The path of the ASR script used.
+*   **wav_file**: The path of the test audio file.
+*   **content**: The full text recognized by the ASR.
+*   **eval_time**: The timestamp of the recognition execution.
+
+**Recognition Result Example:**
+
+| model | wav_file | content | eval_time |
+| :--- | :--- | :--- | :--- |
+| scripts/asr_llm_funasr.py | data/audio_01.wav | [00:00.500 --> 00:03.200] [Speaker 0] Hello, I'm here for the security guard interview. | 2026-07-28 14:00:00 |
+
+#### 2. Final Evaluation Report (`_eval.xlsx`)
+This file is an enhanced version of `_result.xlsx`, **containing all fields from the original file** (such as model, wav_file, content, eval_time), and adds the following scoring columns calculated automatically by G-Eval:
+*   **ground_truth**: Standard reference text (JSON format).
+*   **content_accuracy**: Accuracy score (between 0-1), reflecting the semantic consistency between recognized text and ground truth.
+*   **reason**: The specific reason for the score given by the model, used to analyze the root cause of recognition errors.
+
+**Evaluation Report Example:**
+
+| content | ground_truth | content_accuracy | reason |
+| :--- | :--- | :--- | :--- |
+| Hello, I'm here for the security guard interview. | [{"role":"USER", "ground_truth":"Hello, I'm here for the security guard interview."}] | 1.0 | The recognition result is perfectly consistent with the ground truth. |
+| I am checking the monitors. | [{"role":"USER", "ground_truth":"Responsible for checking monitors in the control room."}] | 0.92 | Accurate meaning, although the wording is slightly different, core information is complete. |
+
+---
+
 ## Prerequisites
 
 ### 1. Python Environment
@@ -69,36 +104,6 @@ python scripts/eval_asr_accuracy.py --dataset data/evaluation_dataset_result.xls
 ```
 *   **`--filter` parameter**: Optional, used to filter specific roles in the `ground_truth` (e.g., `USER`).
 *   **Output**: `data/evaluation_dataset_result_eval.xlsx`
-
----
-
-## Benchmark Result
-
-### 1. Result File Structure (`_result.xlsx`)
-The Excel file generated after automated recognition contains these core columns:
-*   **model**: The path of the ASR script used.
-*   **wav_file**: The path of the test audio file.
-*   **content**: The full text recognized by the ASR.
-*   **eval_time**: The timestamp of the recognition execution.
-
-**Demo Data Example:**
-
-| model | wav_file | content | eval_time |
-| :--- | :--- | :--- | :--- |
-| scripts/asr_llm_funasr.py | data/audio_01.wav | [00:00.500 --> 00:03.200] [Speaker 0] Hello, I'm here for the security guard interview. | 2026-07-28 14:00:00 |
-
-### 2. Evaluation Report Structure (`_eval.xlsx`)
-After running the evaluation script, additional scoring columns are added:
-*   **ground_truth**: Standard reference text (JSON format).
-*   **content_accuracy**: Accuracy score calculated by G-Eval (between 0-1).
-*   **reason**: The specific reason for the score given by the model.
-
-**Demo Data Example:**
-
-| content | ground_truth | content_accuracy | reason |
-| :--- | :--- | :--- | :--- |
-| Hello, I'm here for the security guard interview. | [{"role":"USER", "ground_truth":"Hello, I'm here for the security guard interview."}] | 1.0 | The recognition result is perfectly consistent with the ground truth. |
-| I am checking the monitors in the control room. | [{"role":"USER", "ground_truth":"Responsible for checking monitors in the control room."}] | 0.92 | Accurate meaning, although the wording is slightly different, core information is complete. |
 
 ---
 
