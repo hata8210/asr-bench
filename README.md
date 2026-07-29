@@ -2,6 +2,39 @@
 
 本项目旨在对不同的 ASR（语音转文字）模型进行对比测试和准确率评估。支持多种主流 ASR 服务（如阿里云 FunASR、Qwen-ASR 和讯飞大模型），并集成了基于 `deepeval` (G-Eval) 的自动化评估流程。
 
+## Benchmark（评估逻辑介绍）
+
+### 结果文件与评估报告结构
+本项目通过两个阶段生成最终的评估报告。识别过程产生的中间结果文件（`_result.xlsx`）和最终的评估报告（`_eval.xlsx`）在结构上具有继承关系：
+
+#### 1. 自动化识别结果 (`_result.xlsx`)
+包含 ASR 识别出的原始信息：
+*   **model**: 所使用的 ASR 脚本路径。
+*   **wav_file**: 测试音频文件路径。
+*   **content**: ASR 识别出的完整文本。
+*   **eval_time**: 识别执行的时间戳。
+
+**识别结果示例:**
+
+| model | wav_file | content | eval_time |
+| :--- | :--- | :--- | :--- |
+| scripts/asr_llm_funasr.py | data/audio_01.wav | [00:00.500 --> 00:03.200] [Speaker 0] 你好，我来面试保安岗位。 | 2026-07-28 14:00:00 |
+
+#### 2. 最终评估报告 (`_eval.xlsx`)
+在识别结果的基础上，增加以下由 G-Eval 自动计算的评分列：
+*   **ground_truth**: 标准参考文本（JSON 格式）。
+*   **content_accuracy**: 准确率得分 (0-1 之间)，反映识别文本与标准文本的语义一致性。
+*   **reason**: 模型给出评分的具体理由，用于分析识别错误的根因。
+
+**评估报告示例:**
+
+| content | ground_truth | content_accuracy | reason |
+| :--- | :--- | :--- | :--- |
+| 你好，我来面试保安岗位。 | [{"role":"USER", "ground_truth":"你好，我来面试保安岗位。"}] | 1.0 | 识别结果与标准答案语义完全一致，无信息缺失或错误。 |
+| 我在监控室查看监控。 | [{"role":"USER", "ground_truth":"在监控室负责查看监控。"}] | 0.92 | 意思表达准确，虽然措辞略有出入，但核心信息完整。 |
+
+---
+
 ## Prerequisites (环境要求)
 
 ### 1. Python 环境
@@ -67,36 +100,6 @@ python scripts/eval_asr_accuracy.py --dataset data/评估-面试录音1_result.x
 ```
 *   **参数 `--filter`**: 可选，用于筛选 `ground_truth` 中的特定角色（如 `USER`）。
 *   **输出**: `data/评估-面试录音1_result_eval.xlsx`
-
----
-
-## Benchmark Result (结果输出说明)
-
-### 1. 结果文件结构 (`_result.xlsx`)
-自动化识别后生成的 Excel 包含以下核心列：
-*   **model**: 所使用的 ASR 脚本路径。
-*   **wav_file**: 测试音频文件路径。
-*   **content**: ASR 识别出的完整文本。
-*   **eval_time**: 识别执行的时间戳。
-
-**Demo 数据示例:**
-
-| model | wav_file | content | eval_time |
-| :--- | :--- | :--- | :--- |
-| scripts/asr_llm_funasr.py | data/audio_01.wav | [00:00.500 --> 00:03.200] [Speaker 0] 你好，我来面试保安岗位。 | 2026-07-28 14:00:00 |
-
-### 2. 评估报告结构 (`_eval.xlsx`)
-运行评估脚本后，会在结果文件基础上增加以下评分列：
-*   **ground_truth**: 标准参考文本（JSON 格式）。
-*   **content_accuracy**: 由 G-Eval 计算的准确率得分 (0-1 之间)。
-*   **reason**: 模型给出评分的具体理由。
-
-**Demo 数据示例:**
-
-| content | ground_truth | content_accuracy | reason |
-| :--- | :--- | :--- | :--- |
-| 你好，我来面试保安岗位。 | [{"role":"USER", "ground_truth":"你好，我来面试保安岗位。"}] | 1.0 | 识别结果与标准答案语义完全一致，无信息缺失或错误。 |
-| 我在监控室查看监控。 | [{"role":"USER", "ground_truth":"在监控室负责查看监控。"}] | 0.92 | 意思表达准确，虽然措辞略有出入，但核心信息完整。 |
 
 ---
 
